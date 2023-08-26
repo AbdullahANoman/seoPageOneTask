@@ -1,6 +1,8 @@
 const express = require("express");
 const app = express();
 const cors = require("cors");
+const multer = require("multer");
+
 require("dotenv").config();
 const port = process.env.PORT || 5000;
 const { MongoClient, ServerApiVersion, ObjectId } = require("mongodb");
@@ -14,6 +16,19 @@ const corsOptions = {
 app.use(cors(corsOptions));
 app.use(express.json());
 
+app.use(express.urlencoded({ extended: false }));
+
+// const upload = multer({ dest: "uploads/" });
+const storage = multer.diskStorage({
+  destination: function (req, file, cb) {
+    return cb(null, "./uploads");
+  },
+  filename: function (req, file, cb) {
+    return cb(null, `${Date.now()}-${file?.originalname}`);
+  },
+});
+
+const upload = multer({ storage: storage });
 //mYF9KUWYHvQWdgJG
 //seopageone
 
@@ -38,6 +53,7 @@ async function run() {
     const todoCollection = client.db("seoPageOne").collection("todo");
     const doingCollection = client.db("seoPageOne").collection("doing");
     const completedCollection = client.db("seoPageOne").collection("completed");
+    const uploadDataCollection = client.db("seoPageOne").collection("files");
     const underReviewCollection = client
       .db("seoPageOne")
       .collection("underReview");
@@ -116,6 +132,26 @@ async function run() {
         options
       );
       res.send(result);
+    });
+
+    app.post("/upload", upload.array("uploaded file", 12), async (req, res) => {
+
+
+      let data;
+      if (req.files) {
+        let path = "";
+        req.files.forEach(function (files, index, arr) {
+          path = path + files.path + ",";
+        });
+        path = path.substring(0, path.lastIndexOf(","));
+        data = path;
+      }
+
+
+      const path = { path: data };
+
+      const result = await uploadDataCollection.insertOne(path);
+      return res.send(result);
     });
     app.patch("/updateCompletedCount/:id", async (req, res) => {
       const id = req.params.id;

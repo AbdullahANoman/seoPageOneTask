@@ -57,6 +57,9 @@ async function run() {
     const underReviewCollection = client
       .db("seoPageOne")
       .collection("underReview");
+
+      const allDataCollection = client.db("seoPageOne").collection("allData");
+      
     app.get("/incomplete", async (req, res) => {
       const result = await incompleteCollection.find().toArray();
       res.send(result);
@@ -151,7 +154,7 @@ async function run() {
       const path = { path: data };
 
       const result = await uploadDataCollection.insertOne(path);
-      return res.send(result);
+      return res.status(200)
     });
     app.patch("/updateCompletedCount/:id", async (req, res) => {
       const id = req.params.id;

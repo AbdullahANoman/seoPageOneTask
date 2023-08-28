@@ -45,7 +45,7 @@ const client = new MongoClient(uri, {
 async function run() {
   try {
     // Connect the client to the server	(optional starting in v4.7)
-    await client.connect();
+    // await client.connect();
     // Send a ping to confirm a successful connection
     const incompleteCollection = client
       .db("seoPageOne")
@@ -154,7 +154,7 @@ async function run() {
       const path = { path: data };
 
       const result = await uploadDataCollection.insertOne(path);
-      return res.status(200)
+      return res.status(200).json({message: "Uploaded"})
     });
     app.patch("/updateCompletedCount/:id", async (req, res) => {
       const id = req.params.id;
